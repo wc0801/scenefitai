@@ -1,0 +1,6 @@
+{
+  "name": "SceneFitAI",
+  "description": "Event-driven personal fashion styling and tailored outfit mockup application powered by real-time streaming AI.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

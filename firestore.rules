@@ -1,0 +1,335 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable Hardened Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Validation Blueprint: ApparelItem (/apparel/{apparelId})
+    function isValidApparelItem(data) {
+      return data.keys().hasAll([
+          'id',
+          'sku',
+          'name',
+          'category',
+          'genderLine',
+          'price',
+          'currency',
+          'colorway',
+          'colorHex',
+          'composition',
+          'origin',
+          'fitNotes',
+          'careInstructions',
+          'sizes',
+          'defaultSize',
+          'stockStatus',
+          'imageUrl',
+          'editorialSummary',
+          'stylingPairings',
+          'occasions',
+          'authorUid',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'sku',
+          'name',
+          'category',
+          'genderLine',
+          'price',
+          'currency',
+          'colorway',
+          'colorHex',
+          'composition',
+          'origin',
+          'fitNotes',
+          'careInstructions',
+          'sizes',
+          'defaultSize',
+          'stockStatus',
+          'imageUrl',
+          'editorialSummary',
+          'stylingPairings',
+          'occasions',
+          'authorUid',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.id is string && data.id.size() >= 1 && data.id.size() <= 64 && data.id.matches('^vera-[0-9]{2}$')
+        && data.sku is string && data.sku.size() >= 3 && data.sku.size() <= 32 && data.sku.matches('^VERA-[0-9]{2}$')
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 140
+        && data.category is string && data.category.size() <= 40
+        && data.category in ['Outerwear', 'Dresses', 'Knitwear', 'Tailoring', 'Shirts & Tops', 'Heritage & Festive', 'Leather Goods']
+        && data.genderLine is string && data.genderLine.size() <= 20
+        && data.genderLine in ['Womenswear', 'Menswear', 'Unisex']
+        && (data.price is int || data.price is float) && data.price >= 50 && data.price <= 50000
+        && data.currency is string && data.currency.size() <= 8 && data.currency == 'RM'
+        && data.colorway is string && data.colorway.size() >= 2 && data.colorway.size() <= 80
+        && data.colorHex is string && data.colorHex.size() >= 4 && data.colorHex.size() <= 16
+        && data.composition is string && data.composition.size() >= 2 && data.composition.size() <= 200
+        && data.origin is string && data.origin.size() >= 2 && data.origin.size() <= 160
+        && data.fitNotes is string && data.fitNotes.size() >= 2 && data.fitNotes.size() <= 320
+        && data.careInstructions is string && data.careInstructions.size() >= 2 && data.careInstructions.size() <= 240
+        && data.sizes is list && data.sizes.size() >= 1 && data.sizes.size() <= 6 && data.sizes[0] is string && data.sizes[0].size() <= 16
+        && data.defaultSize is string && data.defaultSize.size() >= 1 && data.defaultSize.size() <= 16
+        && data.stockStatus is string && data.stockStatus.size() <= 32
+        && data.stockStatus in ['In Stock', 'Low Stock', 'Made to Order']
+        && data.imageUrl is string && data.imageUrl.size() >= 1 && data.imageUrl.size() <= 300
+        && data.editorialSummary is string && data.editorialSummary.size() >= 2 && data.editorialSummary.size() <= 360
+        && data.stylingPairings is list && data.stylingPairings.size() >= 1 && data.stylingPairings.size() <= 6 && data.stylingPairings[0] is string && data.stylingPairings[0].size() <= 64
+        && data.occasions is list && data.occasions.size() >= 1 && data.occasions.size() <= 6 && data.occasions[0] is string && data.occasions[0].size() <= 64
+        && data.authorUid is string && data.authorUid.size() >= 1 && data.authorUid.size() <= 128 && data.authorUid.matches('^[a-zA-Z0-9_\\-]+$')
+        && ((isSignedIn() && data.authorUid == request.auth.uid) || (!isSignedIn() && data.authorUid == 'scenefit-kl-catalog'))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: StyleProfileDoc (/profiles/{userId})
+    function isValidStyleProfile(data) {
+      return data.keys().hasAll([
+          'ownerId',
+          'gender',
+          'usualSize',
+          'heightCm',
+          'weightKg',
+          'locationCity',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId',
+          'gender',
+          'usualSize',
+          'heightCm',
+          'weightKg',
+          'locationCity',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId == request.auth.uid
+        && data.gender is string && data.gender.size() <= 16 && data.gender in ['Male', 'Female']
+        && data.usualSize is string && data.usualSize.size() <= 8 && data.usualSize in ['XS', 'S', 'M', 'L', 'XL']
+        && (data.heightCm is int || data.heightCm is float) && data.heightCm >= 130 && data.heightCm <= 220
+        && (data.weightKg is int || data.weightKg is float) && data.weightKg >= 35 && data.weightKg <= 160
+        && data.locationCity is string && data.locationCity.size() >= 2 && data.locationCity.size() <= 100
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: OrderDoc (/orders/{orderId})
+    function isValidOrder(data) {
+      return data.keys().hasAll([
+          'ownerId',
+          'orderNumber',
+          'totalRm',
+          'itemCount',
+          'itemSkus',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId',
+          'orderNumber',
+          'totalRm',
+          'itemCount',
+          'itemSkus',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId == request.auth.uid
+        && data.orderNumber is string && data.orderNumber.size() >= 4 && data.orderNumber.size() <= 40
+        && (data.totalRm is int || data.totalRm is float) && data.totalRm >= 50 && data.totalRm <= 500000
+        && data.itemCount is int && data.itemCount >= 1 && data.itemCount <= 100
+        && data.itemSkus is list && data.itemSkus.size() >= 1 && data.itemSkus.size() <= 30 && data.itemSkus[0] is string && data.itemSkus[0].size() <= 32
+        && data.status is string && data.status.size() <= 24 && data.status in ['confirmed', 'completed']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: TryOnRequestDoc (/try_on_requests/{requestId})
+    function isValidTryOnRequest(data) {
+      return data.keys().hasAll([
+          'id',
+          'requestNumber',
+          'shopperName',
+          'shopperNotes',
+          'status',
+          'fittingRoomNumber',
+          'allocatedBy',
+          'itemCount',
+          'items',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'requestNumber',
+          'shopperName',
+          'shopperNotes',
+          'status',
+          'fittingRoomNumber',
+          'allocatedBy',
+          'itemCount',
+          'items',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.id is string && data.id.size() >= 1 && data.id.size() <= 64 && data.id.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.requestNumber is string && data.requestNumber.size() >= 4 && data.requestNumber.size() <= 40
+        && data.shopperName is string && data.shopperName.size() >= 1 && data.shopperName.size() <= 100
+        && data.shopperNotes is string && data.shopperNotes.size() <= 240
+        && data.status is string && data.status.size() <= 24 && data.status in ['pending', 'preparing', 'allocated', 'completed', 'cancelled']
+        && data.fittingRoomNumber is string && data.fittingRoomNumber.size() <= 40
+        && data.allocatedBy is string && data.allocatedBy.size() <= 60
+        && (data.itemCount is int || data.itemCount is number) && data.itemCount >= 1 && data.itemCount <= 20
+        && data.items is list && data.items.size() >= 1 && data.items.size() <= 20
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Collection 1: /apparel/{apparelId} (30-piece Kuala Lumpur Catalog)
+    match /apparel/{apparelId} {
+      allow get: if isValidId(apparelId) && (resource == null || existing().currency == 'RM');
+      allow list: if existing().currency == 'RM';
+      // Allow initial creation of the 30-piece catalog (vera-01..vera-30) when document does not exist yet
+      allow create: if isValidId(apparelId)
+        && apparelId.matches('^vera-[0-9]{2}$')
+        && isValidApparelItem(incoming())
+        && incoming().id == apparelId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(apparelId)
+        && apparelId.matches('^vera-[0-9]{2}$')
+        && (isVerifiedUser() || (!isSignedIn() && existing().authorUid == 'scenefit-kl-catalog' && incoming().authorUid == 'scenefit-kl-catalog'))
+        && isValidApparelItem(incoming())
+        && incoming().id == existing().id
+        && incoming().sku == existing().sku
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name',
+          'category',
+          'genderLine',
+          'price',
+          'colorway',
+          'colorHex',
+          'composition',
+          'origin',
+          'fitNotes',
+          'careInstructions',
+          'sizes',
+          'defaultSize',
+          'stockStatus',
+          'imageUrl',
+          'editorialSummary',
+          'stylingPairings',
+          'occasions',
+          'authorUid',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Collection 2: /profiles/{userId} (Client Measurement Profiles)
+    match /profiles/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && userId == request.auth.uid && (resource == null || existing().ownerId == request.auth.uid);
+      allow list: if false;
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && userId == request.auth.uid
+        && isValidStyleProfile(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && userId == request.auth.uid
+        && isValidStyleProfile(incoming())
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'gender',
+          'usualSize',
+          'heightCm',
+          'weightKg',
+          'locationCity',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Collection 3: /orders/{orderId} (Kuala Lumpur Customer Orders)
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && isValidId(orderId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow create: if isVerifiedUser()
+        && isValidId(orderId)
+        && isValidOrder(incoming())
+        && incoming().status == 'confirmed'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(orderId)
+        && isValidOrder(incoming())
+        && existing().ownerId == request.auth.uid
+        && existing().status != 'completed'
+        && incoming().ownerId == existing().ownerId
+        && incoming().orderNumber == existing().orderNumber
+        && incoming().totalRm == existing().totalRm
+        && incoming().itemCount == existing().itemCount
+        && incoming().itemSkus == existing().itemSkus
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().status == 'completed'
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+      allow delete: if false;
+    }
+
+    // Collection 4: /try_on_requests/{requestId} (Fitting Room Try-On Requests)
+    match /try_on_requests/{requestId} {
+      allow get: if isValidId(requestId);
+      allow list: if true;
+      allow create: if isValidId(requestId)
+        && isValidTryOnRequest(incoming())
+        && incoming().id == requestId
+        && incoming().status in ['pending', 'preparing']
+        && incoming().createdAt is timestamp
+        && incoming().updatedAt is timestamp;
+      allow update: if isValidId(requestId)
+        && existing().status != 'completed'
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'fittingRoomNumber', 'allocatedBy', 'updatedAt'])
+        && incoming().status in ['pending', 'preparing', 'allocated', 'completed', 'cancelled']
+        && incoming().fittingRoomNumber is string && incoming().fittingRoomNumber.size() <= 40
+        && incoming().allocatedBy is string && incoming().allocatedBy.size() <= 60
+        && incoming().updatedAt is timestamp;
+      allow delete: if false;
+    }
+  }
+}

@@ -1,0 +1,379 @@
+{
+  "entities": {
+    "ApparelItem": {
+      "title": "ApparelItem",
+      "description": "A fashion apparel item in the SceneFitAI Kuala Lumpur 30-piece collection.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique document ID matching the apparel item ID.",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sku": {
+          "type": "string",
+          "description": "Catalog SKU code such as VERA-01 through VERA-30.",
+          "minLength": 3,
+          "maxLength": 32,
+          "pattern": "^VERA-[0-9]{2}$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the garment.",
+          "minLength": 2,
+          "maxLength": 140
+        },
+        "category": {
+          "type": "string",
+          "description": "Apparel category.",
+          "enum": [
+            "Outerwear",
+            "Dresses",
+            "Knitwear",
+            "Tailoring",
+            "Shirts & Tops",
+            "Heritage & Festive",
+            "Leather Goods"
+          ],
+          "maxLength": 40
+        },
+        "genderLine": {
+          "type": "string",
+          "description": "Target gender line.",
+          "enum": ["Womenswear", "Menswear", "Unisex"],
+          "maxLength": 20
+        },
+        "price": {
+          "type": "number",
+          "description": "Price in Malaysian Ringgit (RM)."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code, always RM.",
+          "enum": ["RM"],
+          "maxLength": 8
+        },
+        "colorway": {
+          "type": "string",
+          "description": "Colorway description.",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "colorHex": {
+          "type": "string",
+          "description": "Hex color swatch.",
+          "minLength": 4,
+          "maxLength": 16
+        },
+        "composition": {
+          "type": "string",
+          "description": "Fabric composition details.",
+          "minLength": 2,
+          "maxLength": 200
+        },
+        "origin": {
+          "type": "string",
+          "description": "Provenance and craftsmanship origin.",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "fitNotes": {
+          "type": "string",
+          "description": "Fit and proportion guidance.",
+          "minLength": 2,
+          "maxLength": 320
+        },
+        "careInstructions": {
+          "type": "string",
+          "description": "Garment care instructions.",
+          "minLength": 2,
+          "maxLength": 240
+        },
+        "sizes": {
+          "type": "array",
+          "description": "Available garment sizes (bounded up to 6 sizes)."
+        },
+        "defaultSize": {
+          "type": "string",
+          "description": "Default recommended size.",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "stockStatus": {
+          "type": "string",
+          "description": "Inventory availability status.",
+          "enum": ["In Stock", "Low Stock", "Made to Order"],
+          "maxLength": 32
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Image asset path or URL.",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "editorialSummary": {
+          "type": "string",
+          "description": "Editorial description of the garment.",
+          "minLength": 2,
+          "maxLength": 360
+        },
+        "stylingPairings": {
+          "type": "array",
+          "description": "List of companion product IDs (bounded up to 6)."
+        },
+        "occasions": {
+          "type": "array",
+          "description": "Suitable occasions (bounded up to 6)."
+        },
+        "authorUid": {
+          "type": "string",
+          "description": "Identifier of the catalog initializer or authenticated user who synced the catalog item.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the document was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the document was last updated."
+        }
+      },
+      "required": [
+        "id",
+        "sku",
+        "name",
+        "category",
+        "genderLine",
+        "price",
+        "currency",
+        "colorway",
+        "colorHex",
+        "composition",
+        "origin",
+        "fitNotes",
+        "careInstructions",
+        "sizes",
+        "defaultSize",
+        "stockStatus",
+        "imageUrl",
+        "editorialSummary",
+        "stylingPairings",
+        "occasions",
+        "authorUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "StyleProfileDoc": {
+      "title": "StyleProfileDoc",
+      "description": "Saved client measurement and styling profile in Kuala Lumpur.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the profile owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["Male", "Female"],
+          "maxLength": 16
+        },
+        "usualSize": {
+          "type": "string",
+          "enum": ["XS", "S", "M", "L", "XL"],
+          "maxLength": 8
+        },
+        "heightCm": {
+          "type": "number",
+          "description": "Client height in centimeters (130-220)."
+        },
+        "weightKg": {
+          "type": "number",
+          "description": "Client weight in kilograms (35-160)."
+        },
+        "locationCity": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerId",
+        "gender",
+        "usualSize",
+        "heightCm",
+        "weightKg",
+        "locationCity",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderDoc": {
+      "title": "OrderDoc",
+      "description": "A customer order placed in Kuala Lumpur in RM.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "orderNumber": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 40
+        },
+        "totalRm": {
+          "type": "number",
+          "description": "Total order value in RM."
+        },
+        "itemCount": {
+          "type": "number",
+          "description": "Total number of pieces in the order."
+        },
+        "itemSkus": {
+          "type": "array",
+          "description": "Bounded list of ordered SKU strings (max 30)."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "completed"],
+          "maxLength": 24
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerId",
+        "orderNumber",
+        "totalRm",
+        "itemCount",
+        "itemSkus",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TryOnRequestDoc": {
+      "title": "TryOnRequestDoc",
+      "description": "A fitting room try-on request submitted by an in-store shopper at SceneFitAI Kuala Lumpur.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique try-on request document identifier.",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "requestNumber": {
+          "type": "string",
+          "description": "Human-readable try-on request reference (e.g., TRY-KL-1234).",
+          "minLength": 4,
+          "maxLength": 40
+        },
+        "shopperName": {
+          "type": "string",
+          "description": "Shopper name for fitting room preparation.",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "shopperNotes": {
+          "type": "string",
+          "description": "Optional styling notes or special preferences from shopper.",
+          "maxLength": 240
+        },
+        "status": {
+          "type": "string",
+          "description": "Workflow status of the try-on request.",
+          "enum": ["pending", "preparing", "allocated", "completed", "cancelled"],
+          "maxLength": 24
+        },
+        "fittingRoomNumber": {
+          "type": "string",
+          "description": "Manually entered fitting room number allocated by the retail assistant.",
+          "maxLength": 40
+        },
+        "allocatedBy": {
+          "type": "string",
+          "description": "Name or staff ID of the retail assistant handling the allocation.",
+          "maxLength": 60
+        },
+        "itemCount": {
+          "type": "number",
+          "description": "Total garment pieces requested for try-on."
+        },
+        "items": {
+          "type": "array",
+          "description": "Bounded array of requested garment items with rack numbers (max 20)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when request was submitted."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when request was last updated."
+        }
+      },
+      "required": [
+        "id",
+        "requestNumber",
+        "shopperName",
+        "shopperNotes",
+        "status",
+        "fittingRoomNumber",
+        "allocatedBy",
+        "itemCount",
+        "items",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/apparel/{apparelId}": {
+      "schema": { "$ref": "#/entities/ApparelItem" },
+      "description": "Stores the 30-piece SceneFitAI Kuala Lumpur apparel catalog."
+    },
+    "/profiles/{userId}": {
+      "schema": { "$ref": "#/entities/StyleProfileDoc" },
+      "description": "Stores authenticated user measurement profiles."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/OrderDoc" },
+      "description": "Stores authenticated user orders in Kuala Lumpur."
+    },
+    "/try_on_requests/{requestId}": {
+      "schema": { "$ref": "#/entities/TryOnRequestDoc" },
+      "description": "Stores shopper fitting room try-on requests for retail assistants to prepare garments and allocate fitting rooms."
+    }
+  }
+}
